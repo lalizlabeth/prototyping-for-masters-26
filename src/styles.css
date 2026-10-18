@@ -2,6 +2,7 @@
   --paper: #000000;
   --ink: #ffffff;
   --preview-border: color-mix(in srgb, var(--ink) 16%, transparent);
+  --thumbnail-radius: 20px;
   --line: color-mix(in srgb, var(--ink) 16%, transparent);
   --gutter: clamp(1rem, 2.2vw, 2rem);
   --text-small: clamp(0.75rem, 1vw, 1.125rem);
@@ -223,7 +224,9 @@ h1 span {
   right: var(--gutter);
   width: min(42vw, 40rem);
   max-width: calc((100svh - 6rem) * 1.6);
+  overflow: hidden;
   border: 1px solid var(--preview-border);
+  border-radius: var(--thumbnail-radius);
   background: var(--paper);
   opacity: 0;
   pointer-events: none;
@@ -485,6 +488,7 @@ footer p {
   overflow: hidden;
   background: color-mix(in srgb, var(--ink) 8%, var(--paper));
   border: 1px solid var(--preview-border);
+  border-radius: var(--thumbnail-radius);
   background-clip: padding-box;
 }
 

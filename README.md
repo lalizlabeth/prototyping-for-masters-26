@@ -74,7 +74,7 @@ The readable report is saved to ignored `output/project-audit/report.md`, with f
 
 ## Preview images
 
-The student directory also uses local screenshots for immediate hover and keyboard-focus previews, with a thin border and no shadow. Screenshots are captured at a consistent 1440 × 900 desktop viewport. Press Escape to dismiss a preview; selecting a student's name still opens their live site. On touch devices, names open sites directly.
+The student directory also uses local screenshots for immediate hover and keyboard-focus previews, with a thin border, 20px rounded corners, and no shadow. Gallery thumbnails use the same corners. Screenshots are captured at a consistent 1440 × 900 desktop viewport. Press Escape to dismiss a preview; selecting a student's name still opens their live site. On touch devices, names open sites directly.
 
 Refresh directory screenshots with `npm run previews:sites` (or append a quoted student name to refresh just that site). Images live in `public/previews/sites/`; the capture report is saved to ignored `output/site-previews/captures.json`. Refresh them after students update their homepages.
 
