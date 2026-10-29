@@ -17,6 +17,9 @@ test("playground canvas pans, zooms, and hosts widgets", async ({ page }) => {
   await expect(page.getByText("Stick Figure", { exact: true })).toBeVisible();
   const clock = page.getByRole("img", { name: /\d{1,2}:\d{2} [AP]M in New York/ });
   await expect(clock).toBeVisible();
+  expect(await page.locator(".widget.is-unframed").count()).toBeGreaterThanOrEqual(1);
+  await expect(page.getByText("Letian Tian", { exact: true }).last()).toBeVisible();
+  await expect(page.getByText("Haribo Goldbären", { exact: true })).toBeVisible();
   await expect(page.locator(".widget.is-unframed")).toHaveCount(2);
   await expect(page.locator(".widget.is-unframed", { hasText: "Elizabeth Lin" })).toHaveCount(1);
   await expect(page.locator(".widget.is-unframed").filter({ has: clock })).toHaveCount(1);
