@@ -3,6 +3,7 @@ const defaults = { radius: 24, padding: 24, gap: 12, heading: 26, accent: '#c4ed
 export default {
   student: 'Caoyun Xu',
   title: 'A little focus',
+  frame: false,
   width: 350,
   height: 580,
   mount(root) {

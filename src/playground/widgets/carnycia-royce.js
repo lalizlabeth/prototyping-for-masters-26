@@ -9,6 +9,7 @@ const createSvg = (tag, attrs = {}) => {
 export default {
   student: "Carnycia Royce",
   title: "Stick Figure",
+  frame: false,
   width: 240,
   height: 280,
   mount(root) {
@@ -19,7 +20,7 @@ export default {
         width: 100%;
         height: 100%;
         user-select: none;
-        background: var(--paper, #ffffff);
+        background: transparent;
       }
       svg {
         display: block;

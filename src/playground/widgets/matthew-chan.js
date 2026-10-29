@@ -1,6 +1,7 @@
 export default {
   student: "Matthew Chan",
   title: "Local time",
+  frame: true,
   width: 320,
   height: 180,
   mount(root) {

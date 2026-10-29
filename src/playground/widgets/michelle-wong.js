@@ -53,8 +53,9 @@ const PETAL_COUNTS = [6, 8, 12, 16];
 export default {
   student: "Michelle Wong",
   title: "Blooming flower",
+  frame: false,
   width: 320,
-  height: 280,
+  height: 320,
   mount(root) {
     let currentPaletteIndex = 0;
     let currentPetalCountIndex = 1; // 8 petals
@@ -68,8 +69,8 @@ export default {
         flex-direction: column;
         width: 100%;
         height: 100%;
+        overflow: visible;
         user-select: none;
-        overflow: hidden;
         background: transparent;
         font-family: "IBM Plex Mono", monospace;
       }
@@ -77,7 +78,8 @@ export default {
         position: relative;
         flex: 1;
         width: 100%;
-        height: 100%;
+        min-height: 0;
+        overflow: visible;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -177,7 +179,7 @@ export default {
     container.className = "garden";
 
     const svg = document.createElementNS(SVG, "svg");
-    svg.setAttribute("viewBox", "0 0 240 200");
+    svg.setAttribute("viewBox", "-28 -40 296 268");
     svg.setAttribute("role", "img");
     svg.setAttribute("aria-label", "Interactive blooming flower");
 

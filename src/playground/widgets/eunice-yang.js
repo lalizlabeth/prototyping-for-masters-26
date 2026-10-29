@@ -13,6 +13,7 @@ const svgElement = (name, attributes) => {
 export default {
   student: "Eunice Yang",
   title: "Star clock",
+  frame: false,
   width: 260,
   height: 240,
   mount(root) {

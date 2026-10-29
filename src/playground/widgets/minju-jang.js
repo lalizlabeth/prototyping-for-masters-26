@@ -26,6 +26,7 @@ const storage = {
 export default {
   student: "Minju Jang",
   title: "Interactive Envelope",
+  frame: false,
   width: 320,
   height: 260,
   mount(root) {

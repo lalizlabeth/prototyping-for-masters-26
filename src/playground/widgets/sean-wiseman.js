@@ -9,6 +9,7 @@ const svgElement = (name, attributes) => {
 export default {
   student: "Sean Wiseman",
   title: "Teddy bear",
+  frame: false,
   width: 260,
   height: 280,
   mount(root) {

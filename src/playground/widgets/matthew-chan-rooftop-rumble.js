@@ -293,6 +293,7 @@ const makeFighter = (def) => ({
 export default {
   student: "Matthew Chan",
   title: "Rooftop Rumble",
+  frame: false,
   width: 640,
   height: 400,
   mount(root) {

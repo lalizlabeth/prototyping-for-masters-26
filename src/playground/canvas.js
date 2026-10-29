@@ -1,6 +1,6 @@
 import { mastheadMarkup } from "../masthead.js";
 
-const MIN_SCALE = 0.25;
+const MIN_SCALE = 0.1;
 const MAX_SCALE = 2.5;
 const ZOOM_WHEEL = 0.004;
 const ZOOM_STEP = 1.5;
@@ -8,9 +8,8 @@ const PAN_STEP = 96;
 const DEFAULT_WIDTH = 320;
 const DEFAULT_HEIGHT = 220;
 const GRID = 28;
-const AUTO_GAP = 40;
-const AUTO_ROW_WIDTH = 1600;
 const CREDIT_SPACE = 32;
+const PLACE_ATTEMPTS = 72;
 
 const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (character) => ({
   "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
@@ -18,9 +17,32 @@ const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (character
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
-// Widgets without both x and y are laid out in rows below the hand-placed ones.
-const layoutWidgets = (widgets) => {
-  const boxes = widgets.map((widget) => {
+const hashString = (value) => {
+  let hash = 2166136261;
+  for (const char of String(value)) {
+    hash ^= char.charCodeAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+};
+
+const createRng = (seed) => () => {
+  seed = (seed + 0x6D2B79F5) | 0;
+  let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+};
+
+const boxesOverlap = (a, b, gap) => (
+  a.x < b.x + b.width + gap
+  && a.x + a.width + gap > b.x
+  && a.y < b.y + b.footprint + gap
+  && a.y + a.footprint + gap > b.y
+);
+
+// Widgets without both x and y scatter across a field sized to the current viewport.
+const layoutWidgets = (widgets, viewW = 1280, viewH = 800) => {
+  const boxes = widgets.map((widget, index) => {
     const framed = widget.frame !== false;
     const height = Number.isFinite(widget.height) ? widget.height : DEFAULT_HEIGHT;
     return {
@@ -30,24 +52,55 @@ const layoutWidgets = (widgets) => {
       height,
       framed,
       rotate: Number.isFinite(widget.rotate) ? widget.rotate : 0,
-      footprint: height + (framed ? 0 : CREDIT_SPACE),
+      footprint: height + CREDIT_SPACE,
+      seed: hashString(`${widget.student}\0${widget.title}\0${index}`),
     };
   });
-  const fixed = boxes.filter((box) => box.x !== null && box.y !== null);
-  let cursorX = 0;
-  let cursorY = fixed.length ? Math.max(...fixed.map((box) => box.y + box.footprint)) + AUTO_GAP * 2 : 0;
-  let rowHeight = 0;
-  boxes.forEach((box) => {
-    if (box.x !== null && box.y !== null) return;
-    if (cursorX > 0 && cursorX + box.width > AUTO_ROW_WIDTH) {
-      cursorX = 0;
-      cursorY += rowHeight + AUTO_GAP;
-      rowHeight = 0;
+  const placed = boxes.filter((box) => box.x !== null && box.y !== null);
+  const auto = boxes.filter((box) => box.x === null || box.y === null);
+  if (auto.length === 0) return boxes;
+
+  const width = Math.max(viewW, 320);
+  const height = Math.max(viewH, 240);
+  const desktop = width >= 800;
+  const gap = desktop ? 72 : 36;
+  const occupancy = boxes.reduce((sum, box) => sum + (box.width + gap) * (box.footprint + gap), 0);
+  const density = desktop ? 0.4 : 0.58;
+  const needed = occupancy / density;
+  const aspect = (width / height) * (desktop ? 1.35 : 1);
+  let worldW = Math.sqrt(needed * aspect);
+  let worldH = needed / worldW;
+  worldW = Math.max(worldW, width * (desktop ? 1.2 : 0.92));
+  worldH = Math.max(worldH, height * (desktop ? 0.7 : 0.85));
+  worldW = Math.min(worldW, width / MIN_SCALE);
+  worldH = Math.min(worldH, height / MIN_SCALE);
+
+  const originY = placed.length
+    ? Math.max(...placed.map((box) => box.y + box.footprint)) + gap * 2
+    : 0;
+
+  auto.sort((a, b) => (b.width * b.footprint) - (a.width * a.footprint));
+  auto.forEach((box) => {
+    const rng = createRng(box.seed);
+    let found = false;
+    for (let attempt = 0; attempt < PLACE_ATTEMPTS; attempt += 1) {
+      const x = rng() * Math.max(1, worldW - box.width);
+      const y = originY + rng() * Math.max(1, worldH - box.footprint);
+      const candidate = { x, y, width: box.width, footprint: box.footprint };
+      if (placed.some((other) => boxesOverlap(candidate, other, gap))) continue;
+      box.x = x;
+      box.y = y;
+      placed.push(box);
+      found = true;
+      break;
     }
-    box.x = cursorX;
-    box.y = cursorY;
-    cursorX += box.width + AUTO_GAP;
-    rowHeight = Math.max(rowHeight, box.footprint);
+    if (!found) {
+      const maxX = placed.reduce((max, other) => Math.max(max, other.x + other.width), 0);
+      box.x = maxX + gap + rng() * 80;
+      box.y = originY + rng() * Math.max(1, worldH * 0.6);
+      placed.push(box);
+      worldW = Math.max(worldW, box.x + box.width);
+    }
   });
   return boxes;
 };
@@ -78,9 +131,7 @@ const mountWidget = (widget, { x, y, width, height, framed, rotate }) => {
     <span class="widget-student">${escapeHtml(widget.student)}</span>
     <span class="widget-title">${escapeHtml(widget.title)}</span>
   `;
-  article.innerHTML = framed
-    ? `<header class="widget-caption">${credit}</header><div class="widget-body"></div>`
-    : `<div class="widget-body"></div><p class="widget-credit">${credit}</p>`;
+  article.innerHTML = `<div class="widget-body"></div><p class="widget-credit">${credit}</p>`;
   const body = article.querySelector(".widget-body");
   const shadow = body.attachShadow({ mode: "open" });
   const style = document.createElement("style");
@@ -115,10 +166,9 @@ const enableWidgetDrag = (article, box, { getScale }) => {
     if (event.button !== 0) return;
 
     const path = event.composedPath();
-    const isCaption = path.some((el) => el instanceof Element && el.classList?.contains("widget-caption"));
     const isCredit = path.some((el) => el instanceof Element && el.classList?.contains("widget-credit"));
 
-    if (!isCaption && !isCredit) {
+    if (!isCredit) {
       const isInteractive = path.some((el) => {
         if (!(el instanceof Element)) return false;
         const tag = el.tagName?.toLowerCase();
@@ -221,7 +271,7 @@ export function mountPlayground(app, widgets) {
   const zoomInButton = app.querySelector("[aria-label='Zoom in']");
   const resetButton = app.querySelector(".reset-view");
   const paletteButton = app.querySelector(".palette-button");
-  const placed = layoutWidgets(widgets);
+  const placed = layoutWidgets(widgets, viewport.clientWidth, viewport.clientHeight);
 
   let x = 0;
   let y = 0;

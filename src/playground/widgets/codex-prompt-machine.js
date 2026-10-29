@@ -34,7 +34,8 @@ const constraints = [
 ];
 
 export default {
-  student: "Codex",
+  student: "Stephen",
+  frame: false,
   title: "What if…?",
   width: 360,
   height: 275,

@@ -36,7 +36,8 @@ const pipLocations = {
 };
 
 export default {
-  student: "Codex",
+  student: "Stephen",
+  frame: false,
   title: "Backgammon break",
   width: 430,
   height: 320,

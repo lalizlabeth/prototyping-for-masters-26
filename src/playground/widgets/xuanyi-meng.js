@@ -3,6 +3,7 @@ import diaryImg from "./xuanyi-meng-diary.jpg";
 export default {
   student: "Xuanyi Meng",
   title: "Dear diary",
+  frame: false,
   width: 300,
   height: 326,
   mount(root) {

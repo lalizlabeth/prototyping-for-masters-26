@@ -1,6 +1,7 @@
 export default {
   student: "Siyue Zhong",
   title: "Tamagotchi bear",
+  frame: false,
   width: 320,
   height: 480,
   mount(root) {

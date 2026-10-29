@@ -132,6 +132,7 @@ const drawForest = (context, width, height) => {
 export default {
   student: "Vivan Nadkarni",
   title: "Forest bunny",
+  frame: false,
   width: 480,
   height: 320,
   mount(root) {

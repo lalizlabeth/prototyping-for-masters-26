@@ -56,7 +56,7 @@ button:focus-visible {
 
 .masthead {
   display: grid;
-  grid-template-columns: auto 1fr auto auto;
+  grid-template-columns: 1fr auto auto;
   gap: 0 1.5rem;
   align-items: center;
   min-height: 4.5rem;
@@ -292,12 +292,6 @@ footer p {
     grid-template-columns: 1fr auto auto;
     padding-top: 0.75rem;
     padding-bottom: 0.75rem;
-  }
-
-  .masthead .eyebrow {
-    grid-column: 1 / -1;
-    grid-row: 2;
-    justify-self: start;
   }
 
   .hero {

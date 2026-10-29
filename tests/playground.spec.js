@@ -5,22 +5,33 @@ const readView = (page) => page.locator(".canvas-world").evaluate((el) => {
   return { x: matrix.e, y: matrix.f, scale: matrix.a };
 });
 
+const widgetByTitle = (page, title) => page.locator(".widget").filter({ hasText: title });
+
+const revealChrome = async (widget) => {
+  await widget.hover({ force: true });
+};
+
 test("playground canvas pans, zooms, and hosts widgets", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("link", { name: "Playground" }).click();
   await expect(page).toHaveURL(/\/playground\/?$/);
   await expect(page.getByRole("link", { name: "Playground" })).toHaveAttribute("aria-current", "page");
   await expect(page.getByRole("region", { name: "Playground canvas" })).toBeVisible();
-  await expect(page.getByText("Elizabeth Lin", { exact: true }).last()).toBeVisible();
-  await expect(page.getByText("New York time", { exact: true })).toBeVisible();
-  await expect(page.getByText("Carnycia Royce", { exact: true }).last()).toBeVisible();
-  await expect(page.getByText("Stick Figure", { exact: true })).toBeVisible();
+  const clockWidget = widgetByTitle(page, "New York time");
+  await revealChrome(clockWidget);
+  await expect(clockWidget.getByText("Elizabeth Lin", { exact: true })).toBeVisible();
+  await expect(clockWidget.getByText("New York time", { exact: true })).toBeVisible();
+  const stickWidget = widgetByTitle(page, "Stick Figure");
+  await revealChrome(stickWidget);
+  await expect(stickWidget.getByText("Carnycia Royce", { exact: true })).toBeVisible();
+  await expect(stickWidget.getByText("Stick Figure", { exact: true })).toBeVisible();
   const clock = page.getByRole("img", { name: /\d{1,2}:\d{2} [AP]M in New York/ });
   await expect(clock).toBeVisible();
   expect(await page.locator(".widget.is-unframed").count()).toBeGreaterThanOrEqual(1);
-  await expect(page.getByText("Letian Tian", { exact: true }).last()).toBeVisible();
-  await expect(page.getByText("Haribo Goldbären", { exact: true })).toBeVisible();
-  await expect(page.locator(".widget.is-unframed")).toHaveCount(2);
+  const hariboWidget = widgetByTitle(page, "Haribo Goldbären");
+  await revealChrome(hariboWidget);
+  await expect(hariboWidget.getByText("Letian Tian", { exact: true })).toBeVisible();
+  await expect(hariboWidget.getByText("Haribo Goldbären", { exact: true })).toBeVisible();
   await expect(page.locator(".widget.is-unframed", { hasText: "Elizabeth Lin" })).toHaveCount(1);
   await expect(page.locator(".widget.is-unframed").filter({ has: clock })).toHaveCount(1);
   await clock.click();
@@ -78,7 +89,9 @@ test("homepage and playground share the same header", async ({ page }) => {
 test("playground fits a narrow viewport", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/playground/");
-  await expect(page.getByText("New York time", { exact: true })).toBeVisible();
+  const clockWidget = widgetByTitle(page, "New York time");
+  await revealChrome(clockWidget);
+  await expect(clockWidget.getByText("New York time", { exact: true })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   for (const name of ["Zoom out", "Zoom in", "Reset view", "Change color palette"]) {
     const control = await page.getByRole("button", { name }).boundingBox();
@@ -169,10 +182,11 @@ test("framed widget caption dragging moves widget while button remains clickable
     ]);
   });
 
-  const caption = page.locator(".widget-caption").first();
+  const widget = page.locator(".widget").first();
+  await widget.hover();
+  const caption = page.locator(".widget-credit").first();
   await expect(caption).toBeVisible();
 
-  const widget = page.locator(".widget").first();
   const initLeft = await widget.evaluate((el) => parseFloat(el.style.left));
 
   const box = await caption.boundingBox();
@@ -192,8 +206,10 @@ test("framed widget caption dragging moves widget while button remains clickable
 
 test("Xuanyi Meng's widget displays diary image and triggers flash on click", async ({ page }) => {
   await page.goto("/playground/");
-  await expect(page.getByText("Xuanyi Meng", { exact: true })).toBeVisible();
-  await expect(page.getByText("Dear diary", { exact: true })).toBeVisible();
+  const diaryWidget = widgetByTitle(page, "Dear diary");
+  await revealChrome(diaryWidget);
+  await expect(diaryWidget.getByText("Xuanyi Meng", { exact: true })).toBeVisible();
+  await expect(diaryWidget.getByText("Dear diary", { exact: true })).toBeVisible();
 
   const diary = page.getByRole("button", { name: "Dear diary, click for flash effect" });
   await expect(diary).toBeVisible();
@@ -220,8 +236,10 @@ test("stick figure widget renders and animates on click", async ({ page }) => {
 
 test("smile widget by Yurou Zhou (Reign) renders and changes moods on interaction", async ({ page }) => {
   await page.goto("/playground/");
-  await expect(page.getByText("Yurou Zhou (Reign)", { exact: true })).toBeVisible();
-  await expect(page.getByText("Smile Widget", { exact: true })).toBeVisible();
+  const smileWidget = widgetByTitle(page, "Smile Widget");
+  await revealChrome(smileWidget);
+  await expect(smileWidget.getByText("Yurou Zhou (Reign)", { exact: true })).toBeVisible();
+  await expect(smileWidget.getByText("Smile Widget", { exact: true })).toBeVisible();
 
   const faceSvg = page.locator(".smile-face-svg");
   await expect(faceSvg).toBeVisible();
@@ -244,8 +262,10 @@ test("smile widget by Yurou Zhou (Reign) renders and changes moods on interactio
 
 test("peepo jam widget by Shuotong Huang (Tiffany) renders and animates on click", async ({ page }) => {
   await page.goto("/playground/");
-  await expect(page.getByText("Shuotong Huang (Tiffany)", { exact: true }).last()).toBeVisible();
-  await expect(page.getByText("Peepo Jam", { exact: true })).toBeVisible();
+  const peepoWidget = widgetByTitle(page, "Peepo Jam");
+  await revealChrome(peepoWidget);
+  await expect(peepoWidget.getByText("Shuotong Huang (Tiffany)", { exact: true })).toBeVisible();
+  await expect(peepoWidget.getByText("Peepo Jam", { exact: true })).toBeVisible();
 
   const peepoBtn = page.getByRole("button", { name: /Peepo Jam/i });
   await expect(peepoBtn).toBeVisible();
@@ -260,8 +280,10 @@ test("peepo jam widget by Shuotong Huang (Tiffany) renders and animates on click
 
 test("Ryan Page's sparkling pixel rainbow widget renders and clouds form on hover", async ({ page }) => {
   await page.goto("/playground/");
-  await expect(page.getByText("Ryan Page", { exact: true })).toBeVisible();
-  await expect(page.getByText("Pixel Rainbow", { exact: true })).toBeVisible();
+  const rainbowWidget = widgetByTitle(page, "Pixel Rainbow");
+  await revealChrome(rainbowWidget);
+  await expect(rainbowWidget.getByText("Ryan Page", { exact: true })).toBeVisible();
+  await expect(rainbowWidget.getByText("Pixel Rainbow", { exact: true })).toBeVisible();
 
   const widget = page.locator(".widget").filter({ hasText: "Pixel Rainbow" });
   await expect(widget).toBeVisible();
@@ -283,10 +305,11 @@ test("Ryan Page's sparkling pixel rainbow widget renders and clouds form on hove
 
 test("envelope widget opens, cycles notes, and seals", async ({ page }) => {
   await page.goto("/playground/");
-  const minjuWidget = page.locator(".widget").filter({ hasText: "Interactive Envelope" });
+  const minjuWidget = widgetByTitle(page, "Interactive Envelope");
   await expect(minjuWidget).toBeVisible();
+  await revealChrome(minjuWidget);
   await expect(minjuWidget.locator(".widget-student")).toHaveText("Minju Jang");
-  await expect(page.getByText("Interactive Envelope", { exact: true })).toBeVisible();
+  await expect(minjuWidget.getByText("Interactive Envelope", { exact: true })).toBeVisible();
 
   const seal = minjuWidget.locator(".wax-seal");
   await expect(seal).toBeVisible();
@@ -380,7 +403,7 @@ test("3D Savvy the Pigeon widget renders, rotates on hover, and reacts on click"
   // Toggle photo view
   const toggleBtn = savvyWidget.locator(".btn-toggle-photo");
   await expect(toggleBtn).toBeVisible();
-  await toggleBtn.click();
+  await toggleBtn.click({ force: true });
 
   const photoImg = savvyWidget.locator(".photo-img");
   await expect(photoImg).toBeVisible();
@@ -388,4 +411,52 @@ test("3D Savvy the Pigeon widget renders, rotates on hover, and reacts on click"
   // Flip back to 3D view
   await toggleBtn.click();
   await expect(canvas).toBeVisible();
+});
+
+test("widget name and title appear only on hover", async ({ page }) => {
+  await page.goto("/playground/");
+  await page.mouse.move(2, 2);
+  const widget = widgetByTitle(page, "Local time");
+  await expect(widget.locator(".widget-student")).toBeHidden();
+  await expect(widget.locator(".widget-title")).toBeHidden();
+
+  await widget.hover();
+  await expect(widget.locator(".widget-student")).toBeVisible();
+  await expect(widget.locator(".widget-title")).toHaveText("Local time");
+
+  const flower = widgetByTitle(page, "Blooming flower");
+  const idleBorder = await flower.evaluate((el) => getComputedStyle(el).borderTopWidth);
+  await flower.hover();
+  const hoverBorder = await flower.evaluate((el) => getComputedStyle(el).borderTopWidth);
+  expect(hoverBorder).toEqual(idleBorder);
+  await expect(flower).toHaveClass(/is-unframed/);
+});
+
+test("desktop widgets scatter across the viewport width", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/playground/");
+  const spread = await page.locator(".widget").evaluateAll((els) => {
+    const lefts = els.map((el) => parseFloat(el.style.left));
+    const tops = els.map((el) => parseFloat(el.style.top));
+    const rights = els.map((el, index) => lefts[index] + el.offsetWidth);
+    const bottoms = els.map((el, index) => tops[index] + el.offsetHeight);
+    return {
+      width: Math.max(...rights) - Math.min(...lefts),
+      height: Math.max(...bottoms) - Math.min(...tops),
+      uniqueColumns: new Set(lefts.map((x) => Math.round(x / 48))).size,
+    };
+  });
+  expect(spread.width).toBeGreaterThan(1600);
+  expect(spread.width).toBeGreaterThan(spread.height * 0.8);
+  expect(spread.uniqueColumns).toBeGreaterThan(5);
+});
+
+test("Stephen widgets are credited on the playground", async ({ page }) => {
+  await page.goto("/playground/");
+  const backgammon = widgetByTitle(page, "Backgammon break");
+  await revealChrome(backgammon);
+  await expect(backgammon.locator(".widget-student")).toHaveText("Stephen");
+  const prompts = widgetByTitle(page, "What if…?");
+  await revealChrome(prompts);
+  await expect(prompts.locator(".widget-student")).toHaveText("Stephen");
 });

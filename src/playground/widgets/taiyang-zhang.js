@@ -8,6 +8,7 @@ const NOTES = [523.25, 587.33, 659.25, 783.99, 880.0, 1046.5, 1174.66, 1318.51];
 export default {
   student: "Taiyang Zhang (Sunshine)",
   title: "Sakura Rhythm Tap",
+  frame: false,
   width: 320,
   height: 400,
   rotate: 2,
