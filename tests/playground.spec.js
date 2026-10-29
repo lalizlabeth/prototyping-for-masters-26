@@ -69,6 +69,25 @@ test("playground canvas pans, zooms, and hosts widgets", async ({ page }) => {
   expect(nudged.x).toBeGreaterThan(reset.x + 20);
 });
 
+test("color palette persists between homepage and playground", async ({ page }) => {
+  const paper = () => page.evaluate(() => document.documentElement.style.getPropertyValue("--paper"));
+
+  await page.goto("/");
+  await page.getByRole("button", { name: "Change color palette" }).click();
+  expect(await paper()).toBe("#f4ef8a");
+
+  await page.getByRole("link", { name: "Playground" }).click();
+  await expect(page).toHaveURL(/\/playground\/?$/);
+  expect(await paper()).toBe("#f4ef8a");
+
+  await page.getByRole("button", { name: "Change color palette" }).click();
+  expect(await paper()).toBe("#ffb19e");
+
+  await page.getByRole("link", { name: "Prototyping for Masters home" }).click();
+  await expect(page.getByRole("heading", { name: /Prototyping/ })).toBeVisible();
+  expect(await paper()).toBe("#ffb19e");
+});
+
 test("homepage and playground share the same header", async ({ page }) => {
   const readHeader = () => page.locator(".masthead").evaluate((header) => {
     const link = header.querySelector(".masthead-link").getBoundingClientRect();

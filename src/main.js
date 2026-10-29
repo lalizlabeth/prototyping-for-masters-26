@@ -3,7 +3,7 @@ import { inject } from "@vercel/analytics";
 import { students } from "./students.js";
 import { initSitePreviews } from "./site-previews.js";
 import { galleryMarkup, initGallery } from "./gallery.js";
-import { applyPalette, nextPaletteIndex } from "./palette.js";
+import { bindPalette } from "./palette.js";
 import { mastheadMarkup } from "./masthead.js";
 
 const renderStudent = ({ name, url }, index) => {
@@ -64,20 +64,10 @@ document.querySelector("#app").innerHTML = `
   </main>
 `;
 
-let paletteIndex = 0;
-const paletteButton = document.querySelector(".palette-button");
-const favicon = document.querySelector("#favicon");
-
-const showPalette = (index) => {
-  paletteIndex = index;
-  applyPalette(index, { button: paletteButton, favicon });
-};
-
-paletteButton.addEventListener("click", () => {
-  showPalette(nextPaletteIndex(paletteIndex));
+bindPalette({
+  button: document.querySelector(".palette-button"),
+  favicon: document.querySelector("#favicon"),
 });
-
-showPalette(paletteIndex);
 
 initSitePreviews();
 initGallery(students);
