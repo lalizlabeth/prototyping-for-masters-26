@@ -435,9 +435,9 @@ export default {
     let pointerClientY = -9999;
     let pointerActive = false;
 
-    // 3 consecutive clicks (within 750ms of each other) to catch the bear!
+    // 3 rapid consecutive clicks (within 450ms of each other) to catch the bear!
     // If the gap between clicks is too long, the combo resets and the bear escapes.
-    const MAX_CLICK_GAP_MS = 750;
+    const MAX_CLICK_GAP_MS = 450;
     let clickCount = 0;
     let lastClickTime = 0;
     let clickResetTimer = null;
