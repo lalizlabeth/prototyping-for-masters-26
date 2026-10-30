@@ -31,23 +31,28 @@ export default {
       }
       .stick {
         stroke: var(--ink, #111111);
-        stroke-width: 4;
+        stroke-width: 4.8;
         stroke-linecap: round;
         stroke-linejoin: round;
         fill: none;
       }
-      .head-fill {
+      .head-shape {
         fill: var(--paper, #ffffff);
         stroke: var(--ink, #111111);
-        stroke-width: 4;
-      }
-      .face-feature {
-        fill: var(--ink, #111111);
-        stroke: var(--ink, #111111);
+        stroke-width: 4.8;
         stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .face-line {
+        stroke: var(--ink, #111111);
+        stroke-width: 4.8;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        fill: none;
       }
       .ground-shadow {
-        fill: color-mix(in srgb, var(--ink, #111111) 15%, transparent);
+        fill: color-mix(in srgb, var(--ink, #111111) 14%, transparent);
+        transition: rx 100ms ease;
       }
       .particle {
         pointer-events: none;
@@ -67,47 +72,67 @@ export default {
         }
         100% {
           opacity: 0;
-          transform: translateY(-40px) scale(0.8);
+          transform: translateY(-42px) scale(0.8);
         }
       }
     `;
 
     const svg = createSvg("svg", {
-      viewBox: "0 0 200 240",
+      viewBox: "0 0 240 280",
       role: "img",
       "aria-label": "Stick figure",
       "data-no-drag": "true",
     });
 
     const shadow = createSvg("ellipse", {
-      cx: 100,
-      cy: 218,
-      rx: 28,
-      ry: 5,
+      cx: 120,
+      cy: 260,
+      rx: 34,
+      ry: 5.5,
       class: "ground-shadow",
     });
 
-    const leftLeg = createSvg("polyline", { class: "stick" });
-    const rightLeg = createSvg("polyline", { class: "stick" });
     const spine = createSvg("line", { class: "stick" });
     const leftArm = createSvg("polyline", { class: "stick" });
-    const rightArm = createSvg("polyline", { class: "stick" });
-    const neck = createSvg("line", { class: "stick" });
+    const rightArm = createSvg("path", { class: "stick" });
+    const leftLeg = createSvg("line", { class: "stick" });
+    const rightLeg = createSvg("line", { class: "stick" });
 
+    // Head and facial features
     const headGroup = createSvg("g");
-    const headCircle = createSvg("circle", { cx: 100, cy: 62, r: 20, class: "head-fill" });
-    const leftEye = createSvg("circle", { cx: 93, cy: 59, r: 2.2, class: "face-feature" });
-    const rightEye = createSvg("circle", { cx: 107, cy: 59, r: 2.2, class: "face-feature" });
-    const mouth = createSvg("path", { class: "face-feature", fill: "none", "stroke-width": 2 });
-    headGroup.append(headCircle, leftEye, rightEye, mouth);
+    const head = createSvg("ellipse", {
+      cx: 120,
+      cy: 90,
+      rx: 84,
+      ry: 59,
+      class: "head-shape",
+    });
+
+    // Two wide-spaced vertical-slit eyes
+    const leftEye = createSvg("line", {
+      x1: 88, y1: 91, x2: 88, y2: 102,
+      class: "face-line",
+    });
+    const rightEye = createSvg("line", {
+      x1: 152, y1: 91, x2: 152, y2: 102,
+      class: "face-line",
+    });
+
+    // Cute subtle smirk mouth placed slightly right of center
+    const mouth = createSvg("path", {
+      d: "M 116 122 Q 124 128 134 120",
+      class: "face-line",
+    });
+
+    headGroup.append(head, leftEye, rightEye, mouth);
 
     const particleLayer = createSvg("g");
 
-    svg.append(shadow, leftLeg, rightLeg, spine, leftArm, rightArm, neck, headGroup, particleLayer);
+    svg.append(shadow, spine, leftLeg, rightLeg, leftArm, rightArm, headGroup, particleLayer);
     root.append(style, svg);
 
-    let pointerX = 100;
-    let pointerY = 70;
+    let pointerX = 120;
+    let pointerY = 90;
     let isJumping = false;
     let jumpStartTime = 0;
     let lastClickTime = 0;
@@ -122,13 +147,13 @@ export default {
     svg.addEventListener("pointermove", (e) => {
       const rect = svg.getBoundingClientRect();
       if (!rect.width || !rect.height) return;
-      pointerX = ((e.clientX - rect.left) / rect.width) * 200;
-      pointerY = ((e.clientY - rect.top) / rect.height) * 240;
+      pointerX = ((e.clientX - rect.left) / rect.width) * 240;
+      pointerY = ((e.clientY - rect.top) / rect.height) * 280;
     });
 
     svg.addEventListener("pointerleave", () => {
-      pointerX = 100;
-      pointerY = 70;
+      pointerX = 120;
+      pointerY = 90;
     });
 
     svg.addEventListener("click", () => {
@@ -137,42 +162,33 @@ export default {
       lastClickTime = jumpStartTime;
       const symbols = ["✨", "★", "💖", "😄", "🎶", "✦"];
       const sym = symbols[Math.floor(Math.random() * symbols.length)];
-      spawnParticle(sym, 100 + (Math.random() * 30 - 15), 50);
+      spawnParticle(sym, 120 + (Math.random() * 40 - 20), 45);
     });
 
     function render(now) {
       const time = now / 1000;
-      const isClickedRecently = (now - lastClickTime) < 300;
+      const isClickedRecently = (now - lastClickTime) < 320;
 
-      let hipX = 100;
-      let hipY = 150;
-      let chestX = 100;
-      let chestY = 102;
-      let headX = 100;
-      let headY = 62;
+      let headX = 120;
+      let headY = 90;
+      let hipX = 120;
+      let hipY = 212;
 
-      let lFootX = 78;
-      let lFootY = 216;
-      let lKneeX = 86;
-      let lKneeY = 183;
+      let lFootX = 95;
+      let lFootY = 258;
+      let rFootX = 145;
+      let rFootY = 258;
 
-      let rFootX = 122;
-      let rFootY = 216;
-      let rKneeX = 114;
-      let rKneeY = 183;
+      let shadowRx = 34;
 
-      let lHandX = 66;
-      let lHandY = 126;
-      let lElbowX = 80;
-      let lElbowY = 114;
+      // Base arm poses matching sketch:
+      // Left arm: horizontal then hooked up
+      let lArmPoints = "120,172 94,172 92,164";
+      // Right arm: sweeping curved up-right
+      let rArmD = "M 120 172 Q 142 170 160 162";
 
-      let rHandX = 134;
-      let rHandY = 126;
-      let rElbowX = 120;
-      let rElbowY = 114;
-
-      let shadowRx = 28;
-      let mouthD = "M 94 68 Q 100 73 106 68"; // Gentle smile
+      // Mouth default smirk
+      let mouthD = "M 116 122 Q 124 128 134 120";
 
       if (isJumping) {
         const jumpDuration = 0.7;
@@ -183,106 +199,109 @@ export default {
         } else {
           const p = elapsed / jumpDuration;
           if (p < 0.2) {
-            // Crouch before jump
-            const crouch = (p / 0.2) * 16;
-            hipY += crouch;
-            chestY += crouch;
+            // Crouch down slightly before jumping
+            const crouch = (p / 0.2) * 12;
             headY += crouch;
-            lKneeX = 78;
-            rKneeX = 122;
-            mouthD = "M 95 68 Q 100 68 105 68";
+            hipY += crouch;
+            lArmPoints = "120,180 94,182 92,176";
+            rArmD = "M 120 180 Q 142 178 160 172";
+            mouthD = "M 116 123 Q 124 125 133 123";
           } else if (p < 0.8) {
-            // In the air
+            // In mid-air
             const airP = (p - 0.2) / 0.6;
-            const lift = Math.sin(airP * Math.PI) * 38;
-            hipY -= lift;
-            chestY -= lift;
+            const lift = Math.sin(airP * Math.PI) * 36;
             headY -= lift;
+            hipY -= lift;
 
-            // Tucked legs
-            lFootX = 86;
-            lFootY = 216 - lift + 14;
-            lKneeX = 78;
-            lKneeY = (hipY + lFootY) / 2;
+            // Legs kick in excitement
+            lFootX = 104;
+            lFootY = 258 - lift + 12;
+            rFootX = 136;
+            rFootY = 258 - lift + 12;
 
-            rFootX = 114;
-            rFootY = 216 - lift + 14;
-            rKneeX = 122;
-            rKneeY = (hipY + rFootY) / 2;
+            // Arms celebrate outward to the sides
+            const armLiftY = 172 - lift;
+            lArmPoints = `120,${armLiftY.toFixed(1)} 70,${(armLiftY + 4).toFixed(1)} 46,${(armLiftY - 14).toFixed(1)}`;
+            rArmD = `M 120 ${armLiftY.toFixed(1)} Q 170 ${(armLiftY + 4).toFixed(1)} 194 ${(armLiftY - 14).toFixed(1)}`;
 
-            // Hands up happily!
-            lHandX = 64;
-            lHandY = chestY - 24;
-            lElbowX = 74;
-            lElbowY = chestY - 10;
-
-            rHandX = 136;
-            rHandY = chestY - 24;
-            rElbowX = 126;
-            rElbowY = chestY - 10;
-
-            shadowRx = Math.max(12, 28 - lift * 0.25);
-            mouthD = "M 95 66 Q 100 75 105 66"; // Excited open smile
+            shadowRx = Math.max(16, 34 - lift * 0.35);
+            // Happy open grin
+            mouthD = "M 114 118 Q 125 133 136 118 Z";
           } else {
-            // Landing compression
+            // Landing rebound
             const landP = (p - 0.8) / 0.2;
-            const compression = (1 - landP) * 10;
-            hipY += compression;
-            chestY += compression;
+            const compression = (1 - landP) * 8;
             headY += compression;
+            hipY += compression;
           }
         }
       } else {
-        // Idle gentle breathing sway
-        const breathe = Math.sin(time * 3);
-        hipY += breathe * 1.6;
-        chestY += breathe * 2.2;
-        headY += breathe * 2.6;
-        lHandY += breathe * 1.5;
-        rHandY += breathe * 1.5;
+        // Idle gentle breathing motion
+        const breathe = Math.sin(time * 2.8);
+        headY += breathe * 2.2;
+        hipY += breathe * 1.2;
+
+        // Subtle arm breathing sway
+        lArmPoints = `120,${(172 + breathe * 1.5).toFixed(1)} 94,${(172 + breathe).toFixed(1)} 92,${(164 + breathe).toFixed(1)}`;
+        rArmD = `M 120 ${(172 + breathe * 1.5).toFixed(1)} Q 142 ${(170 + breathe).toFixed(1)} 160 ${(162 + breathe).toFixed(1)}`;
       }
 
-      // Pointer tracking for eyes
+      // Pointer tracking for the wide-set vertical-dash eyes
       const dx = pointerX - headX;
       const dy = pointerY - headY;
       const angle = Math.atan2(dy, dx);
-      const eyeOffset = 2.0;
+      const eyeOffset = 2.4;
       const eyeDx = Math.cos(angle) * eyeOffset;
       const eyeDy = Math.sin(angle) * eyeOffset;
 
       if (isClickedRecently) {
-        // Happy blink
-        leftEye.setAttribute("r", "1");
-        rightEye.setAttribute("r", "1");
+        // Joyful blink / squint: cute horizontal dashes or arcs
+        leftEye.setAttribute("x1", (85 + eyeDx).toFixed(1));
+        leftEye.setAttribute("y1", (96 + eyeDy).toFixed(1));
+        leftEye.setAttribute("x2", (91 + eyeDx).toFixed(1));
+        leftEye.setAttribute("y2", (96 + eyeDy).toFixed(1));
+
+        rightEye.setAttribute("x1", (149 + eyeDx).toFixed(1));
+        rightEye.setAttribute("y1", (96 + eyeDy).toFixed(1));
+        rightEye.setAttribute("x2", (155 + eyeDx).toFixed(1));
+        rightEye.setAttribute("y2", (96 + eyeDy).toFixed(1));
       } else {
-        leftEye.setAttribute("r", "2.2");
-        rightEye.setAttribute("r", "2.2");
+        // Standard vertical dash eyes following pointer
+        leftEye.setAttribute("x1", (88 + eyeDx).toFixed(1));
+        leftEye.setAttribute("y1", (91 + eyeDy).toFixed(1));
+        leftEye.setAttribute("x2", (88 + eyeDx).toFixed(1));
+        leftEye.setAttribute("y2", (102 + eyeDy).toFixed(1));
+
+        rightEye.setAttribute("x1", (152 + eyeDx).toFixed(1));
+        rightEye.setAttribute("y1", (91 + eyeDy).toFixed(1));
+        rightEye.setAttribute("x2", (152 + eyeDx).toFixed(1));
+        rightEye.setAttribute("y2", (102 + eyeDy).toFixed(1));
       }
 
-      leftEye.setAttribute("cx", (93 + eyeDx).toFixed(1));
-      leftEye.setAttribute("cy", (59 + eyeDy).toFixed(1));
-      rightEye.setAttribute("cx", (107 + eyeDx).toFixed(1));
-      rightEye.setAttribute("cy", (59 + eyeDy).toFixed(1));
       mouth.setAttribute("d", mouthD);
 
-      // Whole head moves together seamlessly
-      headGroup.setAttribute("transform", `translate(${(headX - 100).toFixed(1)}, ${(headY - 62).toFixed(1)})`);
+      // Entire head group moves together with head bob/jump
+      headGroup.setAttribute("transform", `translate(${(headX - 120).toFixed(1)}, ${(headY - 90).toFixed(1)})`);
 
-      neck.setAttribute("x1", headX.toFixed(1));
-      neck.setAttribute("y1", (headY + 20).toFixed(1));
-      neck.setAttribute("x2", chestX.toFixed(1));
-      neck.setAttribute("y2", chestY.toFixed(1));
-
-      spine.setAttribute("x1", chestX.toFixed(1));
-      spine.setAttribute("y1", chestY.toFixed(1));
+      // Spine runs from neck (base of head) to hips
+      spine.setAttribute("x1", headX.toFixed(1));
+      spine.setAttribute("y1", (headY + 59).toFixed(1));
       spine.setAttribute("x2", hipX.toFixed(1));
       spine.setAttribute("y2", hipY.toFixed(1));
 
-      leftLeg.setAttribute("points", `${hipX.toFixed(1)},${hipY.toFixed(1)} ${lKneeX.toFixed(1)},${lKneeY.toFixed(1)} ${lFootX.toFixed(1)},${lFootY.toFixed(1)}`);
-      rightLeg.setAttribute("points", `${hipX.toFixed(1)},${hipY.toFixed(1)} ${rKneeX.toFixed(1)},${rKneeY.toFixed(1)} ${rFootX.toFixed(1)},${rFootY.toFixed(1)}`);
+      // Limbs update
+      leftArm.setAttribute("points", lArmPoints);
+      rightArm.setAttribute("d", rArmD);
 
-      leftArm.setAttribute("points", `${chestX.toFixed(1)},${chestY.toFixed(1)} ${lElbowX.toFixed(1)},${lElbowY.toFixed(1)} ${lHandX.toFixed(1)},${lHandY.toFixed(1)}`);
-      rightArm.setAttribute("points", `${chestX.toFixed(1)},${chestY.toFixed(1)} ${rElbowX.toFixed(1)},${rElbowY.toFixed(1)} ${rHandX.toFixed(1)},${rHandY.toFixed(1)}`);
+      leftLeg.setAttribute("x1", hipX.toFixed(1));
+      leftLeg.setAttribute("y1", hipY.toFixed(1));
+      leftLeg.setAttribute("x2", lFootX.toFixed(1));
+      leftLeg.setAttribute("y2", lFootY.toFixed(1));
+
+      rightLeg.setAttribute("x1", hipX.toFixed(1));
+      rightLeg.setAttribute("y1", hipY.toFixed(1));
+      rightLeg.setAttribute("x2", rFootX.toFixed(1));
+      rightLeg.setAttribute("y2", rFootY.toFixed(1));
 
       shadow.setAttribute("cx", hipX.toFixed(1));
       shadow.setAttribute("rx", shadowRx.toFixed(1));
