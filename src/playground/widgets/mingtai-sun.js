@@ -104,18 +104,57 @@ export default {
       }
     };
 
-    // Tiny pixel heart icon when caught
+    // Big pixel heart icon when caught
     const drawPixelHeart = (cx, cy) => {
       const x = Math.round(cx);
       const y = Math.round(cy);
       const pts = [
-        [-2, -1], [-1, -1], [1, -1], [2, -1],
-        [-3, 0], [-2, 0], [-1, 0], [0, 0], [1, 0], [2, 0], [3, 0],
-        [-2, 1], [-1, 1], [0, 1], [1, 1], [2, 1],
-        [-1, 2], [0, 2], [1, 2],
-        [0, 3],
+        [-3, -2], [-2, -2], [-1, -2], [1, -2], [2, -2], [3, -2],
+        [-4, -1], [-3, -1], [-2, -1], [-1, -1], [0, -1], [1, -1], [2, -1], [3, -1], [4, -1],
+        [-4, 0], [-3, 0], [-2, 0], [-1, 0], [0, 0], [1, 0], [2, 0], [3, 0], [4, 0],
+        [-3, 1], [-2, 1], [-1, 1], [0, 1], [1, 1], [2, 1], [3, 1],
+        [-2, 2], [-1, 2], [0, 2], [1, 2], [2, 2],
+        [-1, 3], [0, 3], [1, 3],
+        [0, 4],
       ];
+      pts.forEach(([dx, dy]) => {
+        px(x + dx - 1, y + dy, C.outline);
+        px(x + dx + 1, y + dy, C.outline);
+        px(x + dx, y + dy - 1, C.outline);
+        px(x + dx, y + dy + 1, C.outline);
+      });
       pts.forEach(([dx, dy]) => px(x + dx, y + dy, C.heart));
+      px(x - 2, y - 1, "#ffffff");
+    };
+
+    // Big 9x9 pixel star with dark outline and bright center when clicked 1 or 2 times
+    const drawBigPixelStar = (cx, cy) => {
+      const x = Math.round(cx);
+      const y = Math.round(cy);
+      const starPixels = [
+        [0, -4], [0, -3], [-1, -2], [0, -2], [1, -2],
+        [-2, -2], [2, -2],
+        [-2, -1], [-1, -1], [0, -1], [1, -1], [2, -1],
+        [-4, 0], [-3, 0], [-2, 0], [-1, 0], [0, 0], [1, 0], [2, 0], [3, 0], [4, 0],
+        [-2, 1], [-1, 1], [0, 1], [1, 1], [2, 1],
+        [-2, 2], [2, 2],
+        [-1, 2], [0, 2], [1, 2], [0, 3], [0, 4],
+      ];
+      // Pass 1: 1px dark outline
+      starPixels.forEach(([dx, dy]) => {
+        px(x + dx - 1, y + dy, C.outline);
+        px(x + dx + 1, y + dy, C.outline);
+        px(x + dx, y + dy - 1, C.outline);
+        px(x + dx, y + dy + 1, C.outline);
+      });
+      // Pass 2: bright yellow star fill
+      starPixels.forEach(([dx, dy]) => px(x + dx, y + dy, C.spark));
+      // Pass 3: glowing white core
+      px(x, y, "#ffffff");
+      px(x - 1, y, "#ffffff");
+      px(x + 1, y, "#ffffff");
+      px(x, y - 1, "#ffffff");
+      px(x, y + 1, "#ffffff");
     };
 
     // Draw the bear when CAUGHT (facing screen, dangling/wiggling its little paws & feet!)
@@ -329,15 +368,12 @@ export default {
       drawCapsule(frontSh.x, frontSh.y, frontHand.x, frontHand.y, 2.3, C.fur);
       drawDisk(frontHand.x, frontHand.y, 1.3, C.cream);
 
-      // Show dizzy stars above bear when clicked 1 or 2 times!
-      for (let i = 0; i < clicksTowardsCatch; i += 1) {
-        const sx = 24 + i * 8;
-        const sy = 6;
-        px(sx, sy, C.spark);
-        px(sx - 1, sy, C.spark);
-        px(sx + 1, sy, C.spark);
-        px(sx, sy - 1, C.spark);
-        px(sx, sy + 1, C.spark);
+      // Show big dizzy stars above bear when clicked 1 or 2 times!
+      if (clicksTowardsCatch === 1) {
+        drawBigPixelStar(28, 7);
+      } else if (clicksTowardsCatch >= 2) {
+        drawBigPixelStar(20, 7);
+        drawBigPixelStar(36, 7);
       }
 
       // 8. Mid-air motion sparkles & landing dust puffs
