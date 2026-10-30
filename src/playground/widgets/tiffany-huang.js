@@ -1,4 +1,4 @@
-import pepeUrl from "./tiffany-huang-pepe.png";
+import pepeUrl from "./tiffany-huang-pepe.webp";
 
 const CHIMES = [
   523.25, // C5
