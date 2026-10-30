@@ -496,3 +496,44 @@ test("Stephen widgets are credited on the playground", async ({ page }) => {
   await revealChrome(prompts);
   await expect(prompts.locator(".widget-student")).toHaveText("Stephen");
 });
+
+test("Moving Out game widget plays through house hunt, truck packing, and celebration", async ({ page }) => {
+  await page.goto("/playground/");
+  const movingWidget = widgetByTitle(page, "Moving Out Game");
+  await revealChrome(movingWidget);
+  await expect(movingWidget.locator(".widget-student")).toHaveText("Minju Jang");
+
+  // Intro view
+  await expect(movingWidget.locator(".intro-title")).toHaveText("Moving Out!");
+  const startBtn = movingWidget.locator(".btn-start-hunt");
+  await expect(startBtn).toBeVisible();
+  await startBtn.click();
+
+  // Hunt view: inspect a room feature
+  await expect(movingWidget.locator(".hunt-view")).toHaveClass(/is-active/);
+  const windowBtn = movingWidget.locator(".node-window");
+  await windowBtn.click();
+  await expect(movingWidget.locator(".inspect-text")).toContainText("Window:");
+
+  // Sign lease and proceed to packing
+  const signBtn = movingWidget.locator(".btn-sign-lease");
+  await signBtn.click();
+
+  // Packing view
+  await expect(movingWidget.locator(".packing-view")).toHaveClass(/is-active/);
+  const itemChips = movingWidget.locator(".item-chip");
+  await expect(itemChips.first()).toBeVisible();
+
+  // Pack a few items
+  await itemChips.nth(0).click(); // Loveseat (3 slots)
+  await itemChips.nth(2).click(); // Monstera (1 slot)
+  await expect(movingWidget.locator(".val-truck-filled")).toHaveText("4");
+
+  // Drive truck to new home
+  const finishBtn = movingWidget.locator(".btn-finish-move");
+  await finishBtn.click();
+
+  // Celebration view
+  await expect(movingWidget.locator(".settled-view")).toHaveClass(/is-active/);
+  await expect(movingWidget.locator(".celebration-title")).toContainText("Officially Moved In!");
+});
