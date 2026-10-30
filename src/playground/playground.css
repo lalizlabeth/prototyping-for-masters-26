@@ -86,8 +86,9 @@ html.is-playground body {
   background-repeat: repeat;
 }
 
+.canvas-viewport:focus,
 .canvas-viewport:focus-visible {
-  outline-offset: -3px;
+  outline: none;
 }
 
 .canvas-viewport.is-panning {
@@ -125,10 +126,6 @@ html.is-playground body {
 .widget.is-away {
   content-visibility: hidden;
   pointer-events: none;
-}
-
-.canvas-viewport.is-panning .widget-body {
-  content-visibility: hidden;
 }
 
 .widget.is-dragging {

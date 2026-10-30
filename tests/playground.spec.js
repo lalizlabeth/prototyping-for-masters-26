@@ -122,6 +122,22 @@ test("playground fits a narrow viewport", async ({ page }) => {
   expect(canvas.height).toBeGreaterThan(200);
 });
 
+test("widgets stay visible while panning the canvas", async ({ page }) => {
+  await page.goto("/playground/");
+  const clock = page.getByRole("img", { name: /\d{1,2}:\d{2} [AP]M in New York/ });
+  await expect(clock).toBeVisible();
+
+  const viewport = page.locator(".canvas-viewport");
+  const box = await viewport.boundingBox();
+  await page.mouse.move(box.x + 24, box.y + 24);
+  await page.mouse.down();
+  await page.mouse.move(box.x + 160, box.y + 96, { steps: 8 });
+  await expect(viewport).toHaveClass(/is-panning/);
+  await expect(clock).toBeVisible();
+  await page.mouse.up();
+  await expect(clock).toBeVisible();
+});
+
 test("playground widgets can be dragged around without panning canvas or triggering click", async ({ page }) => {
   await page.goto("/playground/");
   const widget = page.locator(".widget").filter({ hasText: "New York time" });
@@ -145,6 +161,7 @@ test("playground widgets can be dragged around without panning canvas or trigger
   await page.mouse.move(startX + 60, startY + 40, { steps: 4 });
   await expect(widget).toHaveClass(/is-dragging/);
   await expect(page.locator("body")).toHaveClass(/is-dragging-widget/);
+  await expect(widget.locator(".face")).toBeVisible();
 
   await page.mouse.move(startX + 120, startY + 80, { steps: 4 });
   await page.mouse.up();
