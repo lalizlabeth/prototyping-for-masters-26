@@ -435,9 +435,9 @@ export default {
     let pointerClientY = -9999;
     let pointerActive = false;
 
-    // 3 rapid consecutive clicks (within 450ms of each other) to catch the bear!
+    // 3 consecutive clicks (within 750ms of each other) to catch the bear!
     // If the gap between clicks is too long, the combo resets and the bear escapes.
-    const MAX_CLICK_GAP_MS = 450;
+    const MAX_CLICK_GAP_MS = 750;
     let clickCount = 0;
     let lastClickTime = 0;
     let clickResetTimer = null;
@@ -490,6 +490,11 @@ export default {
 
       clickCount += 1;
       lastClickTime = nowMs;
+
+      // Immediately brake the bear's velocity & flip speed on each click so the slowdown is super noticeable
+      vx *= 0.3;
+      vy *= 0.3;
+      currentFreq *= 0.45;
 
       if (clickResetTimer) clearTimeout(clickResetTimer);
       if (clickCount >= 3) {
@@ -550,10 +555,10 @@ export default {
         return;
       }
 
-      // Each click towards 3 slows the bear slightly as it gets dizzy
-      const slowFactor = clickCount === 1 ? 0.72 : clickCount === 2 ? 0.45 : 1.0;
+      // Each click towards 3 noticeably slows down both movement and somersault speed
+      const slowFactor = clickCount === 1 ? 0.35 : clickCount === 2 ? 0.12 : 1.0;
 
-      let targetFreq = BASE_FREQ;
+      let targetFreq = BASE_FREQ * slowFactor;
       let targetVx = Math.cos(wanderAngle) * BASE_SPEED * slowFactor;
       let targetVy = Math.sin(wanderAngle) * BASE_SPEED * slowFactor;
       let isFleeing = false;
@@ -570,7 +575,7 @@ export default {
           if (dist < FLEE_RADIUS) {
             isFleeing = true;
             const closeness = Math.max(0, Math.min(1, (FLEE_RADIUS - dist) / (FLEE_RADIUS - 20)));
-            targetFreq = BASE_FREQ + Math.pow(closeness, 0.95) * (MAX_FREQ - BASE_FREQ) * slowFactor;
+            targetFreq = (BASE_FREQ + Math.pow(closeness, 0.95) * (MAX_FREQ - BASE_FREQ)) * slowFactor;
 
             let fleeAngle = dist > 1 ? Math.atan2(dy, dx) : wanderAngle;
 
