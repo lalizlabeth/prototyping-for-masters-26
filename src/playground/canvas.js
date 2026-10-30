@@ -119,20 +119,26 @@ const baseShadowStyle = `
   }
 `;
 
-const mountWidget = (widget, { x, y, width, height, framed, rotate }) => {
+const createWidgetShell = (widget, { x, y, width, height, framed, rotate }) => {
   const article = document.createElement("article");
   article.className = framed ? "widget" : "widget is-unframed";
   article.style.left = `${x}px`;
   article.style.top = `${y}px`;
   article.style.width = `${width}px`;
   article.style.height = `${height}px`;
+  article.style.containIntrinsicSize = `${width}px ${height}px`;
   if (rotate) article.style.transform = `rotate(${rotate}deg)`;
   const credit = `
     <span class="widget-student">${escapeHtml(widget.student)}</span>
     <span class="widget-title">${escapeHtml(widget.title)}</span>
   `;
   article.innerHTML = `<div class="widget-body"></div><p class="widget-credit">${credit}</p>`;
+  return article;
+};
+
+const realizeWidget = (article, widget) => {
   const body = article.querySelector(".widget-body");
+  if (!body || body.shadowRoot) return;
   const shadow = body.attachShadow({ mode: "open" });
   const style = document.createElement("style");
   style.textContent = baseShadowStyle;
@@ -147,7 +153,9 @@ const mountWidget = (widget, { x, y, width, height, framed, rotate }) => {
     shadow.replaceChildren(message);
   }
   shadow.prepend(style);
-  return article;
+  shadow.querySelectorAll("img").forEach((img) => {
+    img.decoding = "async";
+  });
 };
 
 let topZIndex = 1;
@@ -272,8 +280,12 @@ export function mountPlayground(app, widgets) {
   const zoomInButton = app.querySelector("[aria-label='Zoom in']");
   const resetButton = app.querySelector(".reset-view");
   const paletteButton = app.querySelector(".palette-button");
-  const placed = layoutWidgets(widgets, viewport.clientWidth, viewport.clientHeight);
 
+  let placed = [];
+  let hosts = [];
+  let realizeQueue = [];
+  let realizeFrame = 0;
+  let panFrame = 0;
   let x = 0;
   let y = 0;
   let scale = 1;
@@ -282,12 +294,6 @@ export function mountPlayground(app, widgets) {
   let lastPointerY = 0;
   let viewportRect = null;
   let chromeFrame = 0;
-
-  widgets.forEach((widget, index) => {
-    const article = mountWidget(widget, placed[index]);
-    enableWidgetDrag(article, placed[index], { getScale: () => scale });
-    world.append(article);
-  });
 
   const measureViewport = () => {
     viewportRect = viewport.getBoundingClientRect();
@@ -324,6 +330,39 @@ export function mountPlayground(app, widgets) {
     });
   };
 
+  const flushRealize = () => {
+    realizeFrame = 0;
+    let budget = 3;
+    while (realizeQueue.length && budget > 0) {
+      const host = realizeQueue.shift();
+      if (!host || host.realized) continue;
+      realizeWidget(host.article, host.widget);
+      host.realized = true;
+      budget -= 1;
+    }
+    if (realizeQueue.length) realizeFrame = requestAnimationFrame(flushRealize);
+  };
+
+  const updateVisibility = () => {
+    const vw = viewport.clientWidth;
+    const vh = viewport.clientHeight;
+    const margin = 160;
+    hosts.forEach((host) => {
+      const left = host.box.x * scale + x;
+      const top = host.box.y * scale + y;
+      const visible = left + host.box.width * scale > -margin
+        && left < vw + margin
+        && top + host.box.footprint * scale > -margin
+        && top < vh + margin;
+      host.article.classList.toggle("is-away", !visible);
+      if (visible && !host.realized && !host.queued) {
+        host.queued = true;
+        realizeQueue.push(host);
+      }
+    });
+    if (realizeQueue.length && !realizeFrame) realizeFrame = requestAnimationFrame(flushRealize);
+  };
+
   const zoomAt = (clientX, clientY, nextScale, chrome) => {
     const next = clamp(nextScale, MIN_SCALE, MAX_SCALE);
     if (next === scale) return;
@@ -340,6 +379,7 @@ export function mountPlayground(app, widgets) {
   const zoomBy = (factor) => {
     const rect = viewportRect || measureViewport();
     zoomAt(rect.left + rect.width / 2, rect.top + rect.height / 2, scale * factor, "now");
+    updateVisibility();
   };
 
   const fitView = () => {
@@ -360,12 +400,10 @@ export function mountPlayground(app, widgets) {
     const viewW = Math.max(viewport.clientWidth - pad * 2, 1);
     const viewH = Math.max(viewport.clientHeight - pad * 2, 1);
     scale = clamp(Math.min(viewW / boundsW, viewH / boundsH, 1), MIN_SCALE, MAX_SCALE);
-    x = boundsW * scale > viewW ? pad - minX * scale : (viewport.clientWidth - boundsW * scale) / 2 - minX * scale;
-    y = boundsH * scale > viewH ? pad - minY * scale : (viewport.clientHeight - boundsH * scale) / 2 - minY * scale;
-    render();
     x = (viewport.clientWidth - boundsW * scale) / 2 - minX * scale;
     y = (viewport.clientHeight - boundsH * scale) / 2 - minY * scale;
     render({ chrome: "now" });
+    updateVisibility();
   };
 
   const widgetCanScroll = (target) => {
@@ -380,6 +418,7 @@ export function mountPlayground(app, widgets) {
     const delta = event.deltaY * line;
     if (delta === 0) return;
     zoomAt(event.clientX, event.clientY, scale * Math.exp(-delta * ZOOM_WHEEL));
+    updateVisibility();
   }, { passive: false });
 
   viewport.addEventListener("pointerdown", (event) => {
@@ -398,14 +437,23 @@ export function mountPlayground(app, widgets) {
     y += event.clientY - lastPointerY;
     lastPointerX = event.clientX;
     lastPointerY = event.clientY;
-    render();
+    if (panFrame) return;
+    panFrame = requestAnimationFrame(() => {
+      panFrame = 0;
+      applyTransform();
+    });
   });
 
   const endPan = () => {
     if (!dragging) return;
     dragging = false;
     viewport.classList.remove("is-panning");
+    if (panFrame) {
+      cancelAnimationFrame(panFrame);
+      panFrame = 0;
+    }
     render({ chrome: "now" });
+    updateVisibility();
   };
   viewport.addEventListener("pointerup", endPan);
   viewport.addEventListener("pointercancel", endPan);
@@ -415,6 +463,7 @@ export function mountPlayground(app, widgets) {
   resetButton.addEventListener("click", fitView);
   window.addEventListener("resize", () => {
     viewportRect = null;
+    updateVisibility();
   });
 
   window.addEventListener("keydown", (event) => {
@@ -428,10 +477,32 @@ export function mountPlayground(app, widgets) {
     else if (event.key === "-" || event.key === "_") zoomBy(1 / ZOOM_STEP);
     else return;
     event.preventDefault();
-    if (event.key.startsWith("Arrow")) render({ chrome: "now" });
+    if (event.key.startsWith("Arrow")) {
+      render({ chrome: "now" });
+      updateVisibility();
+    }
   });
 
-  fitView();
+  const setWidgets = (nextWidgets) => {
+    realizeQueue = [];
+    if (realizeFrame) {
+      cancelAnimationFrame(realizeFrame);
+      realizeFrame = 0;
+    }
+    world.replaceChildren();
+    placed = layoutWidgets(nextWidgets, viewport.clientWidth, viewport.clientHeight);
+    hosts = nextWidgets.map((widget, index) => {
+      const box = placed[index];
+      const article = createWidgetShell(widget, box);
+      enableWidgetDrag(article, box, { getScale: () => scale });
+      world.append(article);
+      return { article, widget, box, realized: false };
+    });
+    fitView();
+  };
 
-  return { paletteButton, fitView };
+  if (widgets.length) setWidgets(widgets);
+  else fitView();
+
+  return { paletteButton, fitView, setWidgets };
 }

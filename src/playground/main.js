@@ -2,15 +2,17 @@ import "../styles.css";
 import "./playground.css";
 import { inject } from "@vercel/analytics";
 import { bindPalette } from "../palette.js";
-import { widgets } from "./widgets.js";
+import { loadWidgets } from "./widgets.js";
 import { mountPlayground } from "./canvas.js";
 
 document.documentElement.classList.add("is-playground");
 
-const { paletteButton } = mountPlayground(document.querySelector("#app"), widgets);
+const playground = mountPlayground(document.querySelector("#app"), []);
 
 bindPalette({
-  button: paletteButton,
+  button: playground.paletteButton,
   favicon: document.querySelector("#favicon"),
 });
 inject();
+
+loadWidgets().then((widgets) => playground.setWidgets(widgets));

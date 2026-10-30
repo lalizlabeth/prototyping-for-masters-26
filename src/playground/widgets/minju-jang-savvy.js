@@ -1,4 +1,4 @@
-import savvyPhotoUrl from "../assets/savvy-mascot.png";
+import savvyPhotoUrl from "../assets/savvy-mascot.webp";
 
 export default {
   student: "Minju Jang",

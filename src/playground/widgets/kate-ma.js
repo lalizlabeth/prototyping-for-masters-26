@@ -1,4 +1,4 @@
-import cartoonUnicorn from "../assets/cartoon-unicorn.png";
+import cartoonUnicorn from "../assets/cartoon-unicorn.webp";
 
 export default {
   student: "Kate Ma",

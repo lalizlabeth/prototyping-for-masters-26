@@ -1,6 +1,7 @@
-const modules = import.meta.glob("./widgets/*.js", { eager: true });
+const loaders = import.meta.glob("./widgets/*.js");
 
-export const widgets = Object.keys(modules)
-  .sort()
-  .map((path) => modules[path].default)
-  .filter(Boolean);
+export const loadWidgets = async () => {
+  const paths = Object.keys(loaders).sort();
+  const modules = await Promise.all(paths.map((path) => loaders[path]()));
+  return modules.map((module) => module.default).filter(Boolean);
+};
