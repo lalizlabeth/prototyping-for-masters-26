@@ -5,7 +5,7 @@ export default {
   title: "3D Savvy the Pigeon",
   width: 320,
   height: 380,
-  frame: true,
+  frame: false,
   mount(root) {
     const style = document.createElement("style");
     style.textContent = `
@@ -15,7 +15,6 @@ export default {
         --savvy-crest: #ff2a55;
         --savvy-shoe: #e62244;
         --savvy-yellow: #fca311;
-        --bg-grad: linear-gradient(180deg, #f0f7ff 0%, #e2effe 60%, #d5e6fa 100%);
         display: flex;
         flex-direction: column;
         width: 100%;
@@ -23,7 +22,7 @@ export default {
         user-select: none;
         font-family: "IBM Plex Mono", monospace;
         color: var(--ink);
-        overflow: hidden;
+        background: transparent;
       }
 
       .widget-container {
@@ -32,7 +31,7 @@ export default {
         height: 100%;
         display: flex;
         flex-direction: column;
-        background: var(--bg-grad);
+        background: transparent;
         perspective: 1000px;
       }
 
@@ -535,32 +534,16 @@ export default {
       // List of 3D drawable parts sorted by depth Z
       const drawList = [];
 
-      // 1. Pedestal Ground Disc
+      // 1. Soft Ground Shadow under sneakers
       const groundP = project(0, 92, 0, currentYaw, currentPitch, cx, cy);
       drawList.push({
         z: groundP.z - 20,
         draw() {
-          // Circular NYC street base
           ctx.save();
+          // Soft transparent contact shadow under sneakers
           ctx.beginPath();
-          ctx.ellipse(groundP.x, groundP.y, 85 * groundP.scale, 30 * groundP.scale, 0, 0, Math.PI * 2);
-          ctx.fillStyle = "#cad4e0";
-          ctx.fill();
-          ctx.lineWidth = 2 * groundP.scale;
-          ctx.strokeStyle = "#a2b4c7";
-          ctx.stroke();
-
-          // SVA red emblem ring on the ground
-          ctx.beginPath();
-          ctx.ellipse(groundP.x, groundP.y, 65 * groundP.scale, 22 * groundP.scale, 0, 0, Math.PI * 2);
-          ctx.strokeStyle = "rgba(230, 34, 68, 0.45)";
-          ctx.lineWidth = 1.5 * groundP.scale;
-          ctx.stroke();
-
-          // Shadow under sneakers
-          ctx.beginPath();
-          ctx.ellipse(groundP.x, groundP.y - 2, 48 * groundP.scale, 16 * groundP.scale, 0, 0, Math.PI * 2);
-          ctx.fillStyle = "rgba(0, 0, 0, 0.15)";
+          ctx.ellipse(groundP.x, groundP.y - 2, 50 * groundP.scale, 16 * groundP.scale, 0, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(0, 0, 0, 0.16)";
           ctx.fill();
           ctx.restore();
         },
