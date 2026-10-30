@@ -182,6 +182,7 @@ const enableWidgetDrag = (article, box, { getScale }) => {
           tag === "canvas" ||
           tag === "audio" ||
           tag === "video" ||
+          el.getAttribute("role") === "slider" ||
           el.isContentEditable ||
           el.getAttribute("draggable") === "true" ||
           el.hasAttribute("data-no-drag")
