@@ -460,10 +460,18 @@ export default {
     };
 
     const onWindowClick = (event) => {
-      // Ignore clicks on UI controls (zoom / reset / palette / links)
-      if (event.target instanceof Element && event.target.closest(".canvas-tools, .masthead")) {
-        return;
-      }
+      const article = root.host?.parentElement;
+      const path = typeof event.composedPath === "function" ? event.composedPath() : [];
+
+      // Ignore clicks on UI controls (zoom / reset / palette / links) or on ANY other widget!
+      const hitOtherElement = path.some((el) => {
+        if (!(el instanceof Element)) return false;
+        if (el.classList?.contains("canvas-tools") || el.classList?.contains("masthead")) return true;
+        if (el.classList?.contains("widget") && el !== article) return true;
+        return false;
+      });
+      if (hitOtherElement) return;
+
       pointerClientX = event.clientX;
       pointerClientY = event.clientY;
       pointerActive = true;
@@ -481,6 +489,15 @@ export default {
         vx = Math.cos(wanderAngle) * BASE_SPEED * 1.5;
         vy = Math.sin(wanderAngle) * BASE_SPEED * 1.5;
         return;
+      }
+
+      // Only respond when clicking on/near the bear (within chase radius)
+      const bounds = stage.getBoundingClientRect();
+      if (bounds.width > 0 && bounds.height > 0) {
+        const bearScreenX = bounds.left + bounds.width / 2;
+        const bearScreenY = bounds.top + bounds.height / 2;
+        const dist = Math.hypot(bearScreenX - event.clientX, bearScreenY - event.clientY);
+        if (dist > FLEE_RADIUS * 1.15) return;
       }
 
       const nowMs = performance.now();
