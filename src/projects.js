@@ -229,8 +229,11 @@ const inspirationProjects = [
 const arcadeProjects = [
   ["Carnycia Royce","Soup Retro Arcade","https://soup-five.vercel.app/"],
   ["Letian Tian","Soup Retro Arcade","https://soup-five.vercel.app/"],
+  ["Michelle Wong","Neon Arcade","https://arcade-mac-chelle-tiff.vercel.app/"],
   ["Ruyi Wang","Ticket Arcade","https://ticket-arcade.vercel.app/"],
   ["Sean Wiseman","Soup Retro Arcade","https://soup-five.vercel.app/"],
+  ["Shuotong Huang (Tiffany)","Neon Arcade","https://arcade-mac-chelle-tiff.vercel.app/"],
+  ["Stephen Grant (Mac)","Neon Arcade","https://arcade-mac-chelle-tiff.vercel.app/"],
   ["Wenying Zhu","Ticket Arcade","https://ticket-arcade.vercel.app/"],
   ["Yoonseo Yang (Eunice)","Ticket Arcade","https://ticket-arcade.vercel.app/"],
   ["Yurou Zhou (Reign)","Soup Retro Arcade","https://soup-five.vercel.app/"],
