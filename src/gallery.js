@@ -3,6 +3,23 @@ import { projects, projectTypes } from "./projects.js";
 // projectTypes is listed in course order, so a higher index is a more recent collection.
 const typeOrder = new Map(projectTypes.map(({ id }, index) => [id, index]));
 
+// Projects are already sorted by student, so each group's names stay alphabetical
+// and the card appears where its first member would.
+const groupSharedProjects = (entries) => {
+  const groups = [];
+  const indexByPath = new Map();
+  for (const project of entries) {
+    const existing = indexByPath.get(project.path);
+    if (existing === undefined) {
+      indexByPath.set(project.path, groups.length);
+      groups.push({ project, names: [project.student] });
+    } else {
+      groups[existing].names.push(project.student);
+    }
+  }
+  return groups;
+};
+
 const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (character) => ({
   "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
 })[character]);
@@ -61,22 +78,31 @@ export function initGallery(students) {
         || a.title.localeCompare(b.title, "en"));
     const showTypes = new Set(visibleProjects.map(({ type }) => type)).size > 1;
     title.textContent = collection ? `Week ${collection.week} - ${collection.title}` : "All projects";
+    // Shared arcades stay one record per student so All projects can list each person.
+    // The Arcades collection collapses those records into one card per project.
+    const arcadeGroups = selectedType === "arcades" ? groupSharedProjects(visibleProjects) : null;
+    const displayedCount = arcadeGroups ? arcadeGroups.length : visibleProjects.length;
     const studentCount = new Set(visibleProjects.map(({ student }) => student)).size;
-    count.textContent = `${visibleProjects.length} ${visibleProjects.length === 1 ? "project" : "projects"} · ${studentCount} ${studentCount === 1 ? "student" : "students"}`;
-    const projectCard = (project, index, showStudent = true) => {
-      const student = studentByName.get(project.student);
+    count.textContent = `${displayedCount} ${displayedCount === 1 ? "project" : "projects"} · ${studentCount} ${studentCount === 1 ? "student" : "students"}`;
+    const projectCard = (project, index, showStudent = true, names = null) => {
+      const members = names ?? [project.student];
+      const student = studentByName.get(members[0]);
       const url = new URL(project.path, student.url).href;
+      const isGroup = members.length > 1;
+      const byline = members.join(", ");
+      const studentsMarkup = members.map((name) => `<span class="project-student">${escapeHtml(name)}</span>`).join("");
       return `
         <li class="project-card">
-          <a class="project-link" href="${escapeHtml(url)}" target="_blank" rel="noreferrer" aria-label="Open ${escapeHtml(project.title)} by ${escapeHtml(student.name)} (new tab)">
+          <a class="project-link" href="${escapeHtml(url)}" target="_blank" rel="noreferrer" aria-label="Open ${escapeHtml(project.title)} by ${escapeHtml(byline)} (new tab)">
             <div class="project-image">
               <span class="preview-fallback">Preview unavailable<span>Open project ↗</span></span>
               <img src="${escapeHtml(project.preview)}" alt="" width="1440" height="900" loading="${index < 3 ? "eager" : "lazy"}" decoding="async" />
             </div>
-            <div class="project-caption">
-              ${showStudent ? `<span class="project-student">${escapeHtml(student.name)}</span>` : ""}
+            <div class="project-caption${isGroup ? " is-group" : ""}">
+              ${showStudent && !isGroup ? studentsMarkup : ""}
               <span class="project-week">Week ${project.week}${showTypes ? `: ${escapeHtml(projectTypes.find(({ id }) => id === project.type).title)}` : ""}</span>
               <h3>${escapeHtml(project.title)}</h3>
+              ${showStudent && isGroup ? `<div class="project-students">${studentsMarkup}</div>` : ""}
             </div>
           </a>
         </li>`;
@@ -118,6 +144,8 @@ export function initGallery(students) {
         new ResizeObserver(updateControls).observe(track);
         updateControls();
       });
+    } else if (arcadeGroups) {
+      grid.innerHTML = arcadeGroups.map(({ project, names }, index) => projectCard(project, index, true, names)).join("");
     } else {
       grid.innerHTML = visibleProjects.map((project, index) => projectCard(project, index)).join("");
     }

@@ -188,3 +188,34 @@ test("all projects groups each student into a carousel row", async ({ page }) =>
   await page.getByLabel("Filter by week and project").selectOption("typography");
   await expect(page.locator(".student-project-row")).toHaveCount(0);
 });
+
+test("arcade collection shows each shared project once, while all projects keeps a card per student", async ({ page }) => {
+  const arcades = projects.filter(({ type }) => type === "arcades");
+  const groups = new Map();
+  for (const project of [...arcades].sort((a, b) => a.student.localeCompare(b.student, "en"))) {
+    groups.set(project.path, [...(groups.get(project.path) ?? []), project]);
+  }
+  await page.goto("/?week=9&type=arcades");
+  await expect(page.getByRole("heading", { name: "Week 9 - Arcades" })).toBeVisible();
+  await expect(page.locator(".project-card")).toHaveCount(groups.size);
+  await expect(page.locator(".gallery-count")).toHaveText(`${groups.size} projects · ${new Set(arcades.map(({ student }) => student)).size} students`);
+  for (const [path, members] of groups) {
+    const card = page.locator(".project-card").filter({ has: page.locator(`a[href="${path}"]`) });
+    await expect(card).toHaveCount(1);
+    await expect(card.locator("h3")).toHaveText(members[0].title);
+    await expect(card.locator(".project-students .project-student")).toHaveText(members.map(({ student }) => student));
+    const image = card.locator("img");
+    await expect(image).toHaveAttribute("src", members[0].preview);
+    await image.scrollIntoViewIfNeeded();
+    await expect.poll(() => image.evaluate((img) => img.complete && img.naturalWidth > 0)).toBe(true);
+  }
+  await page.getByLabel("Filter by week and project").selectOption("all");
+  await expect(page.locator(".project-card")).toHaveCount(projects.length);
+  for (const project of arcades) {
+    const row = page.locator(".student-project-row").filter({ has: page.getByRole("heading", { name: project.student, exact: true }) });
+    const card = row.locator(".project-card").filter({ hasText: project.title });
+    await expect(card).toHaveCount(1);
+    await expect(card.locator(".project-students")).toHaveCount(0);
+    await expect(card.locator(".project-link")).toHaveAttribute("href", project.path);
+  }
+});
