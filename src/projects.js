@@ -226,7 +226,16 @@ const inspirationProjects = [
   ["Ziona Sober","Inspiration library","/prototypes/inspiration-library"],
 ];
 
-const arcadeProjects = [];
+const arcadeProjects = [
+  ["Carnycia Royce","Soup Retro Arcade","https://soup-five.vercel.app/"],
+  ["Letian Tian","Soup Retro Arcade","https://soup-five.vercel.app/"],
+  ["Ruyi Wang","Ticket Arcade","https://ticket-arcade.vercel.app/"],
+  ["Sean Wiseman","Soup Retro Arcade","https://soup-five.vercel.app/"],
+  ["Wenying Zhu","Ticket Arcade","https://ticket-arcade.vercel.app/"],
+  ["Yoonseo Yang (Eunice)","Ticket Arcade","https://ticket-arcade.vercel.app/"],
+  ["Yurou Zhou (Reign)","Soup Retro Arcade","https://soup-five.vercel.app/"],
+  ["Ziqing Huang (Lyra)","Ticket Arcade","https://ticket-arcade.vercel.app/"],
+];
 
 const makeProjects = (entries, week, type) => entries.map(([student, title, path]) => ({
   student, title, path, week, type,
