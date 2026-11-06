@@ -6,6 +6,7 @@ export const weeks = [
   { number: 5, title: "Weather apps & API explorations" },
   { number: 6, title: "Books" },
   { number: 7, title: "Inspiration library" },
+  { number: 9, title: "Arcades" },
 ];
 
 export const projectTypes = [
@@ -16,6 +17,7 @@ export const projectTypes = [
   { id: "api", title: "API explorations", week: 5 },
   { id: "books", title: "Books", week: 6 },
   { id: "inspiration", title: "Inspiration library", week: 7 },
+  { id: "arcades", title: "Arcades", week: 9 },
 ];
 
 // Each entry: [student name, project title, direct project path].
@@ -224,6 +226,8 @@ const inspirationProjects = [
   ["Ziona Sober","Inspiration library","/prototypes/inspiration-library"],
 ];
 
+const arcadeProjects = [];
+
 const makeProjects = (entries, week, type) => entries.map(([student, title, path]) => ({
   student, title, path, week, type,
   preview: `/previews/${student.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-$/, "")}-${(path.replace(/\/index\.html?$/i, "").split("/").pop() || title).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-$/, "")}.jpg`,
@@ -237,4 +241,5 @@ export const projects = [
   ...makeProjects(apiProjects, 5, "api"),
   ...makeProjects(bookProjects, 6, "books"),
   ...makeProjects(inspirationProjects, 7, "inspiration"),
+  ...makeProjects(arcadeProjects, 9, "arcades"),
 ];

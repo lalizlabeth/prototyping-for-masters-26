@@ -4,7 +4,7 @@ A Vite course homepage with a weekly student-project gallery and a student-site 
 
 ## Browse student work
 
-The homepage opens in **Student sites**, showing the full roster. Choose **Projects**, then select **Week 3 — Typography**, **Week 4 — PixiJS**, **Week 4 — Doodle**, **Week 5 — Weather apps**, **Week 5 — API explorations**, **Week 6 — Books**, or **Week 7 — Inspiration library**. Every view is sorted alphabetically by student name, then by most recent week first, then project title. Filters are shareable and work with browser Back/Forward:
+The homepage opens in **Student sites**, showing the full roster. Choose **Projects**, then select **Week 3 — Typography**, **Week 4 — PixiJS**, **Week 4 — Doodle**, **Week 5 — Weather apps**, **Week 5 — API explorations**, **Week 6 — Books**, **Week 7 — Inspiration library**, or **Week 9 — Arcades**. Every view is sorted alphabetically by student name, then by most recent week first, then project title. Filters are shareable and work with browser Back/Forward:
 
 - `/?week=3#student-sites` — Week 3 typography gallery
 - `/?week=4&type=pixijs#student-sites` — Week 4 PixiJS gallery
@@ -13,6 +13,7 @@ The homepage opens in **Student sites**, showing the full roster. Choose **Proje
 - `/?week=5&type=api#student-sites` — Week 5 API explorations gallery
 - `/?week=6&type=books#student-sites` — Week 6 bookshelf projects
 - `/?week=7&type=inspiration#student-sites` — Week 7 inspiration libraries
+- `/?week=9&type=arcades#student-sites` — Week 9 arcades
 - Older week-only links open the first collection for that week (PixiJS for Week 4).
 - `/#student-sites` — student directory (default)
 - `/?view=projects#student-sites` — all projects
@@ -57,7 +58,7 @@ Add a reviewed project to the appropriate list in `src/projects.js`:
 ["Student Name", "Project title", "/prototypes/project-name"]
 ```
 
-Use `typographyProjects` for Week 3 typography, `pixiProjects` for Week 4 PixiJS, `doodleProjects` for Week 4 Doodle work, `weatherProjects` for Week 5 weather apps, `apiProjects` for Week 5 API explorations, `bookProjects` for Week 6 Books, or `inspirationProjects` for Week 7 Inspiration library. Names must match `src/students.js`. URLs can be relative to the student's site or absolute. Each list assigns its week, project type, and preview filename explicitly. Adding a future collection also requires entries in `weeks`, `projectTypes`, and `makeProjects`.
+Use `typographyProjects` for Week 3 typography, `pixiProjects` for Week 4 PixiJS, `doodleProjects` for Week 4 Doodle work, `weatherProjects` for Week 5 weather apps, `apiProjects` for Week 5 API explorations, `bookProjects` for Week 6 Books, `inspirationProjects` for Week 7 Inspiration library, or `arcadeProjects` for Week 9 Arcades. Names must match `src/students.js`. URLs can be relative to the student's site or absolute. Each list assigns its week, project type, and preview filename explicitly. Adding a future collection also requires entries in `weeks`, `projectTypes`, and `makeProjects`.
 
 Inspect the actual page before classifying it. Games that happen to contain letters do not belong in Typography; hand-drawn styling alone does not make a game a Doodle tool. The filter options and counts update from the curated data.
 
