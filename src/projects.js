@@ -229,6 +229,7 @@ const inspirationProjects = [
 const arcadeProjects = [
   ["Caoyun Xu (Zoe)","Retro Arcade","https://retro-arcade-dusky.vercel.app/"],
   ["Carnycia Royce","Soup Retro Arcade","https://soup-five.vercel.app/"],
+  ["Ethan Wise","Hot Welcome Arcade","https://party-planning-committee.vercel.app/"],
   ["Heran Cui (Bruce)","8-Bit Retro Arcade","https://prototyping-for-master-arcade.vercel.app/"],
   ["Hoi Kin Chan (Matthew)","Spooky Frutti Arcade","https://spooky-frutti.vercel.app/"],
   ["Jiaqi Yuan","Retro Arcade","https://retro-arcade-dusky.vercel.app/"],
@@ -240,6 +241,7 @@ const arcadeProjects = [
   ["Qianyi Ma (Kate)","Dreamio","https://arcade-project-kidalanis1226-3203.vercel.app/"],
   ["Ruyi Wang","Ticket Arcade","https://ticket-arcade.vercel.app/"],
   ["Ryan Page","Spooky Frutti Arcade","https://spooky-frutti.vercel.app/"],
+  ["Sasha Shafran","Hot Welcome Arcade","https://party-planning-committee.vercel.app/"],
   ["Sean Wiseman","Soup Retro Arcade","https://soup-five.vercel.app/"],
   ["Shuotong Huang (Tiffany)","Neon Arcade","https://arcade-mac-chelle-tiff.vercel.app/"],
   ["Siyue Zhong","8-Bit Retro Arcade","https://prototyping-for-master-arcade.vercel.app/"],
@@ -253,6 +255,7 @@ const arcadeProjects = [
   ["Yoonseo Yang (Eunice)","Ticket Arcade","https://ticket-arcade.vercel.app/"],
   ["Yurou Zhou (Reign)","Soup Retro Arcade","https://soup-five.vercel.app/"],
   ["Zhongyunqi Meng (Aria)","Dreamio","https://arcade-project-kidalanis1226-3203.vercel.app/"],
+  ["Ziona Sober","Hot Welcome Arcade","https://party-planning-committee.vercel.app/"],
   ["Ziqing Huang (Lyra)","Ticket Arcade","https://ticket-arcade.vercel.app/"],
 ];
 
