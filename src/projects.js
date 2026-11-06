@@ -227,16 +227,28 @@ const inspirationProjects = [
 ];
 
 const arcadeProjects = [
+  ["Caoyun Xu (Zoe)","Retro Arcade","https://retro-arcade-dusky.vercel.app/"],
   ["Carnycia Royce","Soup Retro Arcade","https://soup-five.vercel.app/"],
+  ["Hoi Kin Chan (Matthew)","Spooky Frutti Arcade","https://spooky-frutti.vercel.app/"],
+  ["Jiaqi Yuan","Retro Arcade","https://retro-arcade-dusky.vercel.app/"],
+  ["Jochi Yu","Spooky Frutti Arcade","https://spooky-frutti.vercel.app/"],
   ["Letian Tian","Soup Retro Arcade","https://soup-five.vercel.app/"],
   ["Michelle Wong","Neon Arcade","https://arcade-mac-chelle-tiff.vercel.app/"],
+  ["Minju Jang","Spooky Frutti Arcade","https://spooky-frutti.vercel.app/"],
+  ["Qianyi Ma (Kate)","Dreamio","https://arcade-project-kidalanis1226-3203.vercel.app/"],
   ["Ruyi Wang","Ticket Arcade","https://ticket-arcade.vercel.app/"],
+  ["Ryan Page","Spooky Frutti Arcade","https://spooky-frutti.vercel.app/"],
   ["Sean Wiseman","Soup Retro Arcade","https://soup-five.vercel.app/"],
   ["Shuotong Huang (Tiffany)","Neon Arcade","https://arcade-mac-chelle-tiff.vercel.app/"],
   ["Stephen Grant (Mac)","Neon Arcade","https://arcade-mac-chelle-tiff.vercel.app/"],
+  ["Taiyang Zhang (Sunshine)","Retro Arcade","https://retro-arcade-dusky.vercel.app/"],
+  ["Tinglan Huang (Alanis)","Dreamio","https://arcade-project-kidalanis1226-3203.vercel.app/"],
+  ["Vivan Nadkarni","Spooky Frutti Arcade","https://spooky-frutti.vercel.app/"],
   ["Wenying Zhu","Ticket Arcade","https://ticket-arcade.vercel.app/"],
+  ["Xuanyi Meng","Dreamio","https://arcade-project-kidalanis1226-3203.vercel.app/"],
   ["Yoonseo Yang (Eunice)","Ticket Arcade","https://ticket-arcade.vercel.app/"],
   ["Yurou Zhou (Reign)","Soup Retro Arcade","https://soup-five.vercel.app/"],
+  ["Zhongyunqi Meng (Aria)","Dreamio","https://arcade-project-kidalanis1226-3203.vercel.app/"],
   ["Ziqing Huang (Lyra)","Ticket Arcade","https://ticket-arcade.vercel.app/"],
 ];
 
